@@ -1,9 +1,10 @@
+#Creamos el resource Group
 resource "azurerm_resource_group" "resource_group_testwz" {
   name     = var.resource_group_name
   location = var.location
 }
 
-
+#Creamos la virtual Nerwork
 resource "azurerm_virtual_network" "virtual_network_testwz" {
   name                = var.vnet
   address_space       = ["10.0.0.0/16"]
@@ -11,6 +12,7 @@ resource "azurerm_virtual_network" "virtual_network_testwz" {
   resource_group_name = azurerm_resource_group.resource_group_testwz.name
 }
 
+#Creamos la subnet
 resource "azurerm_subnet" "subnet_VNGW" {
   name                 = "GatewaySubnet"
   resource_group_name  = azurerm_resource_group.resource_group_testwz.name
@@ -18,6 +20,7 @@ resource "azurerm_subnet" "subnet_VNGW" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+#Creamos una ip publica para el GW
 resource "azurerm_public_ip" "vpn_gw_ip" {
   name                = "ipp1"
   location            = var.location
@@ -26,6 +29,7 @@ resource "azurerm_public_ip" "vpn_gw_ip" {
   sku                 = "Standard"
 }
 
+#Creamos el virtual Network gateway
 resource "azurerm_virtual_network_gateway" "vpn_gw" {
   name                = "vpngateway"
   location            = var.location
@@ -46,6 +50,7 @@ resource "azurerm_virtual_network_gateway" "vpn_gw" {
   }
 }
 
+#Creamos el local network gateway
 resource "azurerm_local_network_gateway" "onprem" {
   name                = "local-pfsense"
   location            = var.location
@@ -78,6 +83,7 @@ resource "azurerm_subnet" "subnetVM" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
+#ip publica para maquina virtual
 resource "azurerm_public_ip" "ip_VM" {
   name                = "ipVM"
   location            = var.location
@@ -117,7 +123,7 @@ resource "azurerm_windows_virtual_machine" "VirtualMachine" {
 
   os_disk {
     caching              = "ReadWrite"
-    storage_account_type = "Standard_B1s"
+    storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {
